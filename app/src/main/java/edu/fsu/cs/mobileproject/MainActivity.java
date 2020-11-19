@@ -4,7 +4,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.TargetApi;
+import android.app.AlarmManager;
 import android.app.DownloadManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,6 +16,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -26,13 +29,19 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.io.StreamCorruptedException;
+import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
+
+    AlarmManager alarmManager;
+    AlarmReceiver receiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        registerReceiver(receiver, new IntentFilter("TIME"));
 
         ImageButton add = (ImageButton) findViewById(R.id.imageButton);
         add.setOnClickListener(new View.OnClickListener() {
@@ -73,6 +82,31 @@ public class MainActivity extends AppCompatActivity {
                 alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Add",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
+                                Calendar calendar = Calendar.getInstance(); //The time set in the dialog
+                                calendar.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
+                                calendar.set(Calendar.MINUTE, timePicker.getMinute());
+                                calendar.set(Calendar.SECOND, 0);
+                                if(timePicker.getHour() >= 12)
+                                    calendar.set(Calendar.AM_PM,Calendar.PM);
+                                else
+                                    calendar.set(Calendar.AM_PM,Calendar.AM);
+                                calendar.set(Calendar.MONTH, datePicker.getMonth());
+                                calendar.set(Calendar.YEAR, datePicker.getYear());
+                                calendar.set(Calendar.DAY_OF_MONTH, datePicker.getDayOfMonth());
+
+                                Calendar calendar2 = Calendar.getInstance();    //current time
+                                Log.w(getClass().getName(), ((Long)calendar.getTimeInMillis()).toString());
+                                Log.w(getClass().getName(), ((Long)calendar2.getTimeInMillis()).toString());
+
+                                alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+                                Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
+                                //Intent intent = new Intent("TIME");
+                                //Pending intent is passed to alarm manager. When alarm manager reaches the calendar, it will trigger the intent
+                                PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);
+
+                                alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
+                                Log.w(getClass().getName(), "Waiting for: " + alarmManager.getNextAlarmClock().getTriggerTime());
+
                                 dialog.dismiss();
                             }
                         });
@@ -81,3 +115,4 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 }
+
