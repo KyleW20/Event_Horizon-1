@@ -2,19 +2,25 @@ package edu.fsu.cs.mobileproject;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.app.DownloadManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -40,13 +46,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.READ_CALENDAR},
+                0);
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.WRITE_CALENDAR},
+                1);
 
         registerReceiver(receiver, new IntentFilter("TIME"));
 
         ImageButton add = (ImageButton) findViewById(R.id.imageButton);
         add.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                Calendar begin = Calendar.getInstance();
+                Intent intent = new Intent(Intent.ACTION_INSERT)
+                        .setData(CalendarContract.Events.CONTENT_URI);
+                startActivity(intent);
+               /* AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
                 ScrollView scrollView = new ScrollView(MainActivity.this);
                 LinearLayout lp = new LinearLayout(MainActivity.this);
                 lp.setOrientation(LinearLayout.VERTICAL);
@@ -83,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 Calendar calendar = Calendar.getInstance(); //The time set in the dialog
-                                calendar.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
+                                /*calendar.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
                                 calendar.set(Calendar.MINUTE, timePicker.getMinute());
                                 calendar.set(Calendar.SECOND, 0);
                                 if(timePicker.getHour() >= 12)
@@ -105,12 +121,13 @@ public class MainActivity extends AppCompatActivity {
                                 PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);
 
                                 alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
-                                Log.w(getClass().getName(), "Waiting for: " + alarmManager.getNextAlarmClock().getTriggerTime());
+                               // Log.w(getClass().getName(), "Waiting for: " + alarmManager.getNextAlarmClock().getTriggerTime());
+*//*
 
                                 dialog.dismiss();
                             }
                         });
-                alertDialog.show();
+                alertDialog.show();*/
             }
         });
     }
