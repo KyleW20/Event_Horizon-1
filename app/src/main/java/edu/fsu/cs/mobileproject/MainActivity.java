@@ -36,6 +36,7 @@ import android.widget.Toast;
 
 import java.io.StreamCorruptedException;
 import java.util.Calendar;
+import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -59,9 +60,32 @@ public class MainActivity extends AppCompatActivity {
         add.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 Calendar begin = Calendar.getInstance();
-                Intent intent = new Intent(Intent.ACTION_INSERT)
-                        .setData(CalendarContract.Events.CONTENT_URI);
-                startActivity(intent);
+                ContentValues cal = new ContentValues();
+                cal.put(CalendarContract.Events.CALENDAR_ID, 1);
+                cal.put(CalendarContract.Events.TITLE, "Test");
+                cal.put(CalendarContract.Events.DESCRIPTION, "Testing");
+                cal.put(CalendarContract.Events.EVENT_LOCATION, "Who knows");
+
+                cal.put(CalendarContract.Events.DTSTART, begin.getTimeInMillis());
+                cal.put(CalendarContract.Events.DTEND, begin.getTimeInMillis());
+                cal.put(CalendarContract.Events.ALL_DAY, 0);   // 0 for false, 1 for true
+                cal.put(CalendarContract.Events.HAS_ALARM, 1); // 0 for false, 1 for true
+
+                String timeZone = TimeZone.getDefault().getID();
+                cal.put(CalendarContract.Events.EVENT_TIMEZONE, timeZone);
+
+                Uri baseUri;
+                if (Build.VERSION.SDK_INT >= 8) {
+                    baseUri = Uri.parse("content://com.android.calendar/events");
+                } else {
+                    baseUri = Uri.parse("content://calendar/events");
+                }
+                getApplicationContext().getContentResolver().insert(baseUri, cal);
+//LEAVE THE 3 LINES UNDERNEATH THIS NO MATTER WHAT. I MAY NEED IT. - KYLE
+                //Intent intent = new Intent(Intent.ACTION_INSERT)
+                  //     .setData(CalendarContract.Events.CONTENT_URI);
+                //startActivity(intent);
+
                /* AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
                 ScrollView scrollView = new ScrollView(MainActivity.this);
                 LinearLayout lp = new LinearLayout(MainActivity.this);
