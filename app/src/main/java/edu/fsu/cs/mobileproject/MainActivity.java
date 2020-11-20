@@ -17,6 +17,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.database.DataSetObserver;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,24 +26,35 @@ import android.provider.CalendarContract;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.ScrollView;
+import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.io.StreamCorruptedException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Map;
 import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity {
 
     AlarmManager alarmManager;
     AlarmReceiver receiver;
+    ListView lv;
+    ArrayList<String> events;
+    ArrayAdapter<String> futureEventsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,9 +69,27 @@ public class MainActivity extends AppCompatActivity {
 
         registerReceiver(receiver, new IntentFilter("TIME"));
 
+        lv = (ListView) findViewById(R.id.listView);
+        events = new ArrayList<String>();
+        final ArrayAdapter<String> futureEventsAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, events){
+            //had to override getView function because it kept creating white text instead.
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent)
+            {
+                View view = super.getView(position, convertView, parent);
+                TextView textView = (TextView) view.findViewById(android.R.id.text1);
+                textView.setTextColor(Color.BLACK);
+                return view;
+            }
+        };
+
+        lv.setAdapter(futureEventsAdapter);
+
+
         ImageButton add = (ImageButton) findViewById(R.id.imageButton);
         add.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
+                Log.w("myApp", "onClick");
                 Calendar begin = Calendar.getInstance();
                 ContentValues cal = new ContentValues();
                 cal.put(CalendarContract.Events.CALENDAR_ID, 1);
@@ -81,6 +112,9 @@ public class MainActivity extends AppCompatActivity {
                     baseUri = Uri.parse("content://calendar/events");
                 }
                 getApplicationContext().getContentResolver().insert(baseUri, cal);
+
+                Log.w("myApp", "want to add: " + cal.get(CalendarContract.Events.TITLE));
+                addToList((String) cal.get(CalendarContract.Events.TITLE));
 //LEAVE THE 3 LINES UNDERNEATH THIS NO MATTER WHAT. I MAY NEED IT. - KYLE
                 //Intent intent = new Intent(Intent.ACTION_INSERT)
                   //     .setData(CalendarContract.Events.CONTENT_URI);
@@ -155,5 +189,22 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    public void addToList(String event) {
+        //Toast.makeText(getActivity().getApplicationContext(), urls[0], Toast.LENGTH_SHORT).show();
+        events.add(event);
+        futureEventsAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, events){
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent)
+            {
+                View view = super.getView(position, convertView, parent);
+                TextView textView = (TextView) view.findViewById(android.R.id.text1);
+                textView.setTextColor(Color.BLACK);
+                return view;
+            }
+        };
+        lv.setAdapter(futureEventsAdapter);
+    }
+
 }
 
