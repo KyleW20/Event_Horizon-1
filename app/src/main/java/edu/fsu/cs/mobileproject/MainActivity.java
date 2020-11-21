@@ -7,6 +7,7 @@ import androidx.core.app.ActivityCompat;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.AlarmManager;
+import android.app.Dialog;
 import android.app.DownloadManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -47,6 +48,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.TimeZone;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -55,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
     ListView lv;
     ArrayList<String> events;
     ArrayAdapter<String> futureEventsAdapter;
+    static final int DIALOG_EXIT_ID = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,11 +89,21 @@ public class MainActivity extends AppCompatActivity {
         };
 
         lv.setAdapter(futureEventsAdapter);
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
 
-        ImageButton add = (ImageButton) findViewById(R.id.imageButton);
-        add.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.add:
+
+                showDialog(1);
                 Log.w("myApp", "onClick");
                 Calendar begin = Calendar.getInstance();
                 ContentValues cal = new ContentValues();
@@ -115,12 +130,12 @@ public class MainActivity extends AppCompatActivity {
 
                 Log.w("myApp", "want to add: " + cal.get(CalendarContract.Events.TITLE));
                 addToList((String) cal.get(CalendarContract.Events.TITLE));
-//LEAVE THE 3 LINES UNDERNEATH THIS NO MATTER WHAT. I MAY NEED IT. - KYLE
-                //Intent intent = new Intent(Intent.ACTION_INSERT)
-                  //     .setData(CalendarContract.Events.CONTENT_URI);
-                //startActivity(intent);
 
-               /* AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                //LEAVE THE 3 LINES UNDERNEATH THIS NO MATTER WHAT. I MAY NEED IT. - KYLE
+//                Intent intent = new Intent(Intent.ACTION_INSERT)
+//                       .setData(CalendarContract.Events.CONTENT_URI);
+//                startActivity(intent);
+                /*AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
                 ScrollView scrollView = new ScrollView(MainActivity.this);
                 LinearLayout lp = new LinearLayout(MainActivity.this);
                 lp.setOrientation(LinearLayout.VERTICAL);
@@ -186,8 +201,14 @@ public class MainActivity extends AppCompatActivity {
                             }
                         });
                 alertDialog.show();*/
-            }
-        });
+
+                break;
+
+            case R.id.exit:
+                finish();
+                break;
+        }
+        return true;
     }
 
     public void addToList(String event) {
