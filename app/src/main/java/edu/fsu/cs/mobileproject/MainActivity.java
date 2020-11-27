@@ -102,7 +102,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.add:
-
+                Intent myIntent = new Intent(MainActivity.this, AddActivity.class);
+                MainActivity.this.startActivity(myIntent);
                 showDialog(1);
                 Log.w("myApp", "onClick");
                 Calendar begin = Calendar.getInstance();
