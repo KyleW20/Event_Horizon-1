@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -28,11 +29,15 @@ public class AddActivity extends AppCompatActivity {
     private TextView dText;
     private TextView sText;
     private TextView eText;
+    private EditText title;
+    private EditText desc;
+    private Button alarm;
     int year = 0;
     int month = 0;
     int day = 0;
-    int hour = 0;
-    int minute = 0;
+    int hour = 0,hour2 = 0;
+    int minute = 0, minute2 = 0;
+    int check= 0;
     int timeArr[] = {12,1,2,3,4,5,6,7,8,9,10,11,12,1,2,3,4,5,6,7,8,9,10,11};
 
     @Override
@@ -48,6 +53,10 @@ public class AddActivity extends AppCompatActivity {
         Button end = (Button) findViewById(R.id.timeEnd);
         Button save = (Button) findViewById(R.id.saveButton);
         Button cancel = (Button) findViewById(R.id.cancelButton);
+        alarm = (Button) findViewById(R.id.checkBox);
+        title = (EditText) findViewById(R.id.editTextTextPersonName2);
+        desc = (EditText) findViewById(R.id.editTextTextPersonName);
+
         Calendar cal = Calendar.getInstance();
         year = cal.get(Calendar.YEAR);
         month = cal.get(Calendar.MONTH);
@@ -126,21 +135,20 @@ public class AddActivity extends AppCompatActivity {
             @Override
             public void onTimeSet(TimePicker timePicker, int hour1, int minute1) {
                 String time, pass;
-                if(hour1 < hour || hour1 < (hour - 12)) {
+                if(hour1 < hour || hour1 < (hour + 12)) {
                     hour1 = hour + 1;
-                    time = "";
                 }
-                else {
-                    if (hour1 >= 13 && hour1 <= 24) {
-                        if (hour1 == 24)
-                            hour1 = timeArr[0];
-                        else
-                            hour1 = timeArr[hour1];
-                        time = " PM";
-                    } else {
-                        time = " AM";
-                    }
+
+                if (hour1 >= 13 && hour1 <= 24) {
+                    if (hour1 == 24)
+                        hour1 = timeArr[0];
+                    else
+                        hour1 = timeArr[hour1];
+                    time = " PM";
+                } else {
+                    time = " AM";
                 }
+
                 if(minute1 < 10)
                 {
                     pass = hour1 + ":0" + minute1;
@@ -148,8 +156,8 @@ public class AddActivity extends AppCompatActivity {
                 else {
                     pass = hour1 + ":" + minute1 + time;
                 }
-                hour = hour1;
-                minute = minute1;
+                hour2 = hour1;
+                minute2 = minute1;
                 eText.setText(pass);
             }
         };
@@ -162,21 +170,32 @@ public class AddActivity extends AppCompatActivity {
             }
         });
 
+        alarm.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                check = 1;
+            }
+        });
+
         save.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
+
                 Calendar begin = Calendar.getInstance();
                 ContentValues cal = new ContentValues();
                 cal.put(CalendarContract.Events.CALENDAR_ID, 1);
-                cal.put(CalendarContract.Events.TITLE, "Test");
-                cal.put(CalendarContract.Events.DESCRIPTION, "Testing");
-                cal.put(CalendarContract.Events.EVENT_LOCATION, "Who knows");
-
+                cal.put(CalendarContract.Events.TITLE, title.getText().toString());
+                cal.put(CalendarContract.Events.DESCRIPTION, desc.getText().toString());
+                cal.put(CalendarContract.Events.EVENT_LOCATION, "Unknown");
+                begin.set(year,month,day,hour,minute);
+                Calendar endCal = Calendar.getInstance();
+                endCal.set(year,month,day,hour2,minute2);
                 cal.put(CalendarContract.Events.DTSTART, begin.getTimeInMillis());
-                cal.put(CalendarContract.Events.DTEND, begin.getTimeInMillis());
+                cal.put(CalendarContract.Events.DTEND, endCal.getTimeInMillis());
                 cal.put(CalendarContract.Events.ALL_DAY, 0);   // 0 for false, 1 for true
-                cal.put(CalendarContract.Events.HAS_ALARM, 1); // 0 for false, 1 for true
+                cal.put(CalendarContract.Events.HAS_ALARM, check); // 0 for false, 1 for true
 
                 String timeZone = TimeZone.getDefault().getID();
                 cal.put(CalendarContract.Events.EVENT_TIMEZONE, timeZone);
@@ -190,7 +209,6 @@ public class AddActivity extends AppCompatActivity {
                 getApplicationContext().getContentResolver().insert(baseUri, cal);
 
                 Log.w("myApp", "want to add: " + cal.get(CalendarContract.Events.TITLE));
-
                 AddActivity.this.finish();
             }
         });

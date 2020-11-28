@@ -127,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     baseUri = Uri.parse("content://calendar/events");
                 }
+
                 getApplicationContext().getContentResolver().insert(baseUri, cal);
 
                 Log.w("myApp", "want to add: " + cal.get(CalendarContract.Events.TITLE));
