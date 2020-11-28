@@ -28,6 +28,7 @@ public class AddActivity extends AppCompatActivity {
     int day = 0;
     int hour = 0;
     int minute = 0;
+    int timeArr[] = {12,1,2,3,4,5,6,7,8,9,10,11,12,1,2,3,4,5,6,7,8,9,10,11};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,16 +41,16 @@ public class AddActivity extends AppCompatActivity {
         Button date = (Button) findViewById(R.id.dateButton);
         Button start = (Button) findViewById(R.id.timeStart);
         Button end = (Button) findViewById(R.id.timeEnd);
+        Calendar cal = Calendar.getInstance();
+        year = cal.get(Calendar.YEAR);
+        month = cal.get(Calendar.MONTH);
+        day = cal.get(Calendar.DAY_OF_MONTH);
+        hour = cal.get(Calendar.HOUR_OF_DAY);
+        minute = cal.get(Calendar.MINUTE);
         date.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                Calendar cal = Calendar.getInstance();
-                year = cal.get(Calendar.YEAR);
-                month = cal.get(Calendar.MONTH);
-                day = cal.get(Calendar.DAY_OF_MONTH);
-                hour = cal.get(Calendar.HOUR_OF_DAY);
-                minute = cal.get(Calendar.MINUTE);
                 final DatePickerDialog datePicker = new DatePickerDialog(AddActivity.this, dateSet, year, month, day);
                 datePicker.show();
 
@@ -80,14 +81,71 @@ public class AddActivity extends AppCompatActivity {
         startSet = new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int hour1, int minute1) {
-                
-                String pass = hour1 + ":" + minute1;
+                String time, pass;
+                if(hour1 >= 13 && hour1 <= 24) {
+                    if(hour1 == 24)
+                        hour1 = timeArr[0];
+                    else
+                        hour1 = timeArr[hour1];
+                    time = " PM";
+                }
+                else{
+                    time = " AM";
+                }
+
+                if(minute1 < 10)
+                {
+                    pass = hour1 + ":0" + minute1;
+                }
+                else {
+                    pass = hour1 + ":" + minute1 + time;
+                }
                 hour = hour1;
                 minute = minute1;
                 sText.setText(pass);
             }
         };
 
+        end.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                TimePickerDialog timePicker = new TimePickerDialog(AddActivity.this, endSet, hour, minute, false);
+                timePicker.show();
+            }
+        });
+
+        endSet = new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker timePicker, int hour1, int minute1) {
+                String time, pass;
+                if(hour1 < hour || hour1 < (hour - 12)) {
+                    hour1 = hour + 1;
+                    time = "";
+                }
+                else {
+                    if (hour1 >= 13 && hour1 <= 24) {
+                        if (hour1 == 24)
+                            hour1 = timeArr[0];
+                        else
+                            hour1 = timeArr[hour1];
+                        time = " PM";
+                    } else {
+                        time = " AM";
+                    }
+                }
+                if(minute1 < 10)
+                {
+                    pass = hour1 + ":0" + minute1;
+                }
+                else {
+                    pass = hour1 + ":" + minute1 + time;
+                }
+                hour = hour1;
+                minute = minute1;
+                eText.setText(pass);
+            }
+        };
 
     }
 }
