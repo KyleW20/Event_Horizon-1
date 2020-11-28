@@ -5,8 +5,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.ContentValues;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.CalendarContract;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -15,6 +19,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.util.Calendar;
+import java.util.TimeZone;
 
 public class AddActivity extends AppCompatActivity {
     private DatePickerDialog.OnDateSetListener dateSet;
@@ -41,6 +46,8 @@ public class AddActivity extends AppCompatActivity {
         Button date = (Button) findViewById(R.id.dateButton);
         Button start = (Button) findViewById(R.id.timeStart);
         Button end = (Button) findViewById(R.id.timeEnd);
+        Button save = (Button) findViewById(R.id.saveButton);
+        Button cancel = (Button) findViewById(R.id.cancelButton);
         Calendar cal = Calendar.getInstance();
         year = cal.get(Calendar.YEAR);
         month = cal.get(Calendar.MONTH);
@@ -147,5 +154,45 @@ public class AddActivity extends AppCompatActivity {
             }
         };
 
+        cancel.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                AddActivity.this.finish();
+            }
+        });
+
+        save.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Calendar begin = Calendar.getInstance();
+                ContentValues cal = new ContentValues();
+                cal.put(CalendarContract.Events.CALENDAR_ID, 1);
+                cal.put(CalendarContract.Events.TITLE, "Test");
+                cal.put(CalendarContract.Events.DESCRIPTION, "Testing");
+                cal.put(CalendarContract.Events.EVENT_LOCATION, "Who knows");
+
+                cal.put(CalendarContract.Events.DTSTART, begin.getTimeInMillis());
+                cal.put(CalendarContract.Events.DTEND, begin.getTimeInMillis());
+                cal.put(CalendarContract.Events.ALL_DAY, 0);   // 0 for false, 1 for true
+                cal.put(CalendarContract.Events.HAS_ALARM, 1); // 0 for false, 1 for true
+
+                String timeZone = TimeZone.getDefault().getID();
+                cal.put(CalendarContract.Events.EVENT_TIMEZONE, timeZone);
+
+                Uri baseUri;
+                if (Build.VERSION.SDK_INT >= 8) {
+                    baseUri = Uri.parse("content://com.android.calendar/events");
+                } else {
+                    baseUri = Uri.parse("content://calendar/events");
+                }
+                getApplicationContext().getContentResolver().insert(baseUri, cal);
+
+                Log.w("myApp", "want to add: " + cal.get(CalendarContract.Events.TITLE));
+
+                AddActivity.this.finish();
+            }
+        });
     }
 }
