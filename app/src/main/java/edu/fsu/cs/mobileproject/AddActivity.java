@@ -24,17 +24,19 @@ import java.util.TimeZone;
 
 public class AddActivity extends AppCompatActivity {
     private DatePickerDialog.OnDateSetListener dateSet;
+    private DatePickerDialog.OnDateSetListener startDateSet;
     private TimePickerDialog.OnTimeSetListener startSet;
     private TimePickerDialog.OnTimeSetListener endSet;
     private TextView dText;
+    private TextView startdText;
     private TextView sText;
     private TextView eText;
     private EditText title;
     private EditText desc;
     private Button alarm;
-    int year = 0;
-    int month = 0;
-    int day = 0;
+    int calYear = 0, year = 0, year2 = 0;
+    int calMonth = 0, month = 0, month2 = 0;
+    int calDay = 0, day = 0, day2 = 0;
     int hour = 0,hour2 = 0;
     int minute = 0, minute2 = 0;
     int check= 0;
@@ -48,7 +50,9 @@ public class AddActivity extends AppCompatActivity {
         dText = (TextView) findViewById(R.id.textView3);
         sText = (TextView)findViewById(R.id.textView4);
         eText = (TextView) findViewById(R.id.textView5);
+        startdText = (TextView) findViewById(R.id.textView10);
         Button date = (Button) findViewById(R.id.dateButton);
+        Button startDate = (Button) findViewById(R.id.startDateButton);
         Button start = (Button) findViewById(R.id.timeStart);
         Button end = (Button) findViewById(R.id.timeEnd);
         Button save = (Button) findViewById(R.id.saveButton);
@@ -58,16 +62,39 @@ public class AddActivity extends AppCompatActivity {
         desc = (EditText) findViewById(R.id.editTextTextPersonName);
 
         Calendar cal = Calendar.getInstance();
-        year = cal.get(Calendar.YEAR);
-        month = cal.get(Calendar.MONTH);
-        day = cal.get(Calendar.DAY_OF_MONTH);
+        calYear = cal.get(Calendar.YEAR);
+        calMonth = cal.get(Calendar.MONTH);
+        calDay = cal.get(Calendar.DAY_OF_MONTH);
         hour = cal.get(Calendar.HOUR_OF_DAY);
         minute = cal.get(Calendar.MINUTE);
+
+        startDate.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                final DatePickerDialog datePicker = new DatePickerDialog(AddActivity.this, startDateSet, calYear, calMonth, calDay);
+                datePicker.show();
+
+            }
+        });
+
+        startDateSet = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int year1, int month1, int day1) {
+                month1 = month1 + 1;
+                year = year1;
+                day = day1;
+                month = month1;
+                String pass = month1 + "/" + day1 + "/" + year1;
+                startdText.setText(pass);
+            }
+        };
+
         date.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                final DatePickerDialog datePicker = new DatePickerDialog(AddActivity.this, dateSet, year, month, day);
+                final DatePickerDialog datePicker = new DatePickerDialog(AddActivity.this, dateSet, calYear, calMonth, calDay);
                 datePicker.show();
 
             }
@@ -77,9 +104,17 @@ public class AddActivity extends AppCompatActivity {
             @Override
             public void onDateSet(DatePicker datePicker, int year1, int month1, int day1) {
                 month1 = month1 + 1;
-                year = year1;
-                day = day1;
-                month = month1;
+                if(year1 < year)
+                    year1 = year;
+                if(month1 < month)
+                    month1 = month;
+                if(day1 < day)
+                    day1 = day;
+
+                    year2 = year1;
+                    day2 = day1;
+                    month2 = month1;
+
                 String pass = month1 + "/" + day1 + "/" + year1;
                 dText.setText(pass);
             }
@@ -191,7 +226,7 @@ public class AddActivity extends AppCompatActivity {
                 cal.put(CalendarContract.Events.EVENT_LOCATION, "Unknown");
                 begin.set(year,month,day,hour,minute);
                 Calendar endCal = Calendar.getInstance();
-                endCal.set(year,month,day,hour2,minute2);
+                endCal.set(year2,month2,day2,hour2,minute2);
                 cal.put(CalendarContract.Events.DTSTART, begin.getTimeInMillis());
                 cal.put(CalendarContract.Events.DTEND, endCal.getTimeInMillis());
                 cal.put(CalendarContract.Events.ALL_DAY, 0);   // 0 for false, 1 for true
