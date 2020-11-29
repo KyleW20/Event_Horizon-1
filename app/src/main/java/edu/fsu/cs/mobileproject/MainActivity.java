@@ -130,11 +130,12 @@ public class MainActivity extends AppCompatActivity {
                     baseUri = Uri.parse("content://calendar/events");
                 }
 
+                Log.w("myApp", "adding from onOptionsItemSelected" + cal.get(CalendarContract.Events.TITLE));
                 getApplicationContext().getContentResolver().insert(baseUri, cal);
 
                 Log.w("myApp", "want to add: " + cal.get(CalendarContract.Events.TITLE));
                 addToList((String) cal.get(CalendarContract.Events.TITLE));
- */
+*/
 
 
                 //LEAVE THE 3 LINES UNDERNEATH THIS NO MATTER WHAT. I MAY NEED IT. - KYLE
@@ -225,7 +226,9 @@ public class MainActivity extends AppCompatActivity {
         Log.w("Main", "Activity Result");
         if(requestCode == 1)
         {
+            // ADD TO LIST INSTEAD OF ADDING TO CALENDAR
             ContentValues cal = (ContentValues) data.getParcelableExtra("CAL");
+            Log.w("main", "Date: " + cal.get(CalendarContract.Events.DTSTART));
             Calendar begin = Calendar.getInstance();
 
             Uri baseUri;
@@ -236,9 +239,9 @@ public class MainActivity extends AppCompatActivity {
             }
 
             // Insert event into calendar
-            getApplicationContext().getContentResolver().insert(baseUri, cal);
+            //getApplicationContext().getContentResolver().insert(baseUri, cal);
 
-            Log.w("myApp", "want to add: " + cal.get(CalendarContract.Events.TITLE));
+            Log.w("main", "want to add: " + cal.get(CalendarContract.Events.TITLE));
             addToList((String) cal.get(CalendarContract.Events.TITLE));
         }
     }

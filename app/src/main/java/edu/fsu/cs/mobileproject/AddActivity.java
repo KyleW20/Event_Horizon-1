@@ -85,7 +85,7 @@ public class AddActivity extends AppCompatActivity {
                 month1 = month1 + 1;
                 year = year1;
                 day = day1;
-                month = month1;
+                month = month1 - 1;
                 String pass = month1 + "/" + day1 + "/" + year1;
                 startdText.setText(pass);
             }
@@ -112,9 +112,9 @@ public class AddActivity extends AppCompatActivity {
                 if(day1 < day)
                     day1 = day;
 
-                    year2 = year1;
-                    day2 = day1;
-                    month2 = month1;
+                year2 = year1;
+                day2 = day1;
+                month2 = month1 - 1;
 
                 String pass = month1 + "/" + day1 + "/" + year1;
                 dText.setText(pass);
@@ -134,23 +134,26 @@ public class AddActivity extends AppCompatActivity {
             @Override
             public void onTimeSet(TimePicker timePicker, int hour1, int minute1) {
                 String time, pass;
-                if(hour1 >= 13 && hour1 <= 24) {
-                    if(hour1 == 24)
+                int test = 0;
+                if(hour1 >= 13 && hour1 < 24) {
+                    /*if(hour1 == 24)
                         hour1 = timeArr[0];
                     else
-                        hour1 = timeArr[hour1];
+                        hour1 = timeArr[hour1];*/
+                    test = hour1 - 12;
                     time = " PM";
                 }
                 else{
+                    test = hour1;
                     time = " AM";
                 }
 
                 if(minute1 < 10)
                 {
-                    pass = hour1 + ":0" + minute1;
+                    pass = test + ":0" + minute1 + time;
                 }
                 else {
-                    pass = hour1 + ":" + minute1 + time;
+                    pass = test + ":" + minute1 + time;
                 }
                 hour = hour1;
                 minute = minute1;
@@ -175,22 +178,25 @@ public class AddActivity extends AppCompatActivity {
                     hour1 = hour + 1;
                 }
 
+                int test = 0;
                 if (hour1 >= 13 && hour1 <= 24) {
-                    if (hour1 == 24)
+                   /* if (hour1 == 24)
                         hour1 = timeArr[0];
                     else
-                        hour1 = timeArr[hour1];
+                        hour1 = timeArr[hour1];*/
+                    test = hour1 - 12;
                     time = " PM";
                 } else {
+                    test = hour1;
                     time = " AM";
                 }
 
                 if(minute1 < 10)
                 {
-                    pass = hour1 + ":0" + minute1;
+                    pass = test + ":0" + minute1;
                 }
                 else {
-                    pass = hour1 + ":" + minute1 + time;
+                    pass = test + ":" + minute1 + time;
                 }
                 hour2 = hour1;
                 minute2 = minute1;
@@ -243,7 +249,7 @@ public class AddActivity extends AppCompatActivity {
                     baseUri = Uri.parse("content://calendar/events");
                 }
 
-                //getApplicationContext().getContentResolver().insert(baseUri, cal);
+                getApplicationContext().getContentResolver().insert(baseUri, cal);
 
                 Log.w("AddActivity.class", "want to add: " + cal.get(CalendarContract.Events.TITLE));
                 Intent intent = new Intent();
