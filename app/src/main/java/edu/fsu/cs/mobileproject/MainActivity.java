@@ -103,9 +103,11 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.add:
                 Intent myIntent = new Intent(MainActivity.this, AddActivity.class);
-                MainActivity.this.startActivity(myIntent);
+                MainActivity.this.startActivityForResult(myIntent, 1);
                 showDialog(1);
+
                 Log.w("myApp", "onClick");
+/*
                 Calendar begin = Calendar.getInstance();
                 ContentValues cal = new ContentValues();
                 cal.put(CalendarContract.Events.CALENDAR_ID, 1);
@@ -132,6 +134,8 @@ public class MainActivity extends AppCompatActivity {
 
                 Log.w("myApp", "want to add: " + cal.get(CalendarContract.Events.TITLE));
                 addToList((String) cal.get(CalendarContract.Events.TITLE));
+ */
+
 
                 //LEAVE THE 3 LINES UNDERNEATH THIS NO MATTER WHAT. I MAY NEED IT. - KYLE
 //                Intent intent = new Intent(Intent.ACTION_INSERT)
@@ -211,6 +215,32 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
         return true;
+    }
+
+    // This gets called when we setResult from the AddActivity function
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.w("Main", "Activity Result");
+        if(requestCode == 1)
+        {
+            ContentValues cal = (ContentValues) data.getParcelableExtra("CAL");
+            Calendar begin = Calendar.getInstance();
+
+            Uri baseUri;
+            if (Build.VERSION.SDK_INT >= 8) {
+                baseUri = Uri.parse("content://com.android.calendar/events");
+            } else {
+                baseUri = Uri.parse("content://calendar/events");
+            }
+
+            // Insert event into calendar
+            getApplicationContext().getContentResolver().insert(baseUri, cal);
+
+            Log.w("myApp", "want to add: " + cal.get(CalendarContract.Events.TITLE));
+            addToList((String) cal.get(CalendarContract.Events.TITLE));
+        }
     }
 
     public void addToList(String event) {

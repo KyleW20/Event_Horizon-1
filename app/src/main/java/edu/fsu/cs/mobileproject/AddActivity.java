@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -241,9 +242,13 @@ public class AddActivity extends AppCompatActivity {
                 } else {
                     baseUri = Uri.parse("content://calendar/events");
                 }
-                getApplicationContext().getContentResolver().insert(baseUri, cal);
 
-                Log.w("myApp", "want to add: " + cal.get(CalendarContract.Events.TITLE));
+                //getApplicationContext().getContentResolver().insert(baseUri, cal);
+
+                Log.w("AddActivity.class", "want to add: " + cal.get(CalendarContract.Events.TITLE));
+                Intent intent = new Intent();
+                intent.putExtra("CAL", cal);
+                setResult(1, intent);
                 AddActivity.this.finish();
             }
         });
