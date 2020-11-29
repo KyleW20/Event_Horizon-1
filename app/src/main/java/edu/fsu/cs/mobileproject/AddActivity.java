@@ -174,7 +174,8 @@ public class AddActivity extends AppCompatActivity {
             @Override
             public void onTimeSet(TimePicker timePicker, int hour1, int minute1) {
                 String time, pass;
-                if(hour1 < hour || hour1 < (hour + 12)) {
+
+                if((hour1 < hour || hour1 < (hour + 12)) && (minute1 <= minute)){
                     hour1 = hour + 1;
                 }
 

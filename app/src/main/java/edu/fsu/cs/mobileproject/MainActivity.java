@@ -52,13 +52,18 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+
 public class MainActivity extends AppCompatActivity {
 
     AlarmManager alarmManager;
     AlarmReceiver receiver;
     ListView lv;
-    ArrayList<String> events;
+    ListView todayList;
+    ArrayList<String> todayEvents;
+    ArrayList<String> futureEvents;
     ArrayAdapter<String> futureEventsAdapter;
+    ArrayAdapter<String> todayEventsAdapter;
+    ArrayList<ContentValues> allEvents;         //stores all the data for upcoming events
     static final int DIALOG_EXIT_ID = 1;
 
     @Override
@@ -74,9 +79,26 @@ public class MainActivity extends AppCompatActivity {
 
         registerReceiver(receiver, new IntentFilter("TIME"));
 
+        allEvents = new ArrayList<ContentValues>();
+
         lv = (ListView) findViewById(R.id.listView);
-        events = new ArrayList<String>();
-        final ArrayAdapter<String> futureEventsAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, events){
+        todayList = (ListView) findViewById(R.id.listView2);
+
+
+        futureEvents = new ArrayList<String>();
+        final ArrayAdapter<String> futureEventsAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, futureEvents) {
+            //had to override getView function because it kept creating white text instead.
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                TextView textView = (TextView) view.findViewById(android.R.id.text1);
+                textView.setTextColor(Color.BLACK);
+                return view;
+            }
+        };
+
+        todayEvents = new ArrayList<String>();
+        final ArrayAdapter<String> todayEventsAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, todayEvents){
             //had to override getView function because it kept creating white text instead.
             @Override
             public View getView(int position, View convertView, ViewGroup parent)
@@ -89,6 +111,43 @@ public class MainActivity extends AppCompatActivity {
         };
 
         lv.setAdapter(futureEventsAdapter);
+        todayList.setAdapter(todayEventsAdapter);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Log.w("myApp", "onResume");
+
+        Calendar now = Calendar.getInstance();
+        for(int i = 0; i < allEvents.size(); i++)
+        {
+            // If the event has ended, pop it from the appropriate lists
+            if((Long)allEvents.get(i).get(CalendarContract.Events.DTEND) < now.getTimeInMillis())
+            {
+                Log.w("myApp", "an event has finished!");
+                // Search for the event to delete in future events.
+                int toDelete = futureEvents.indexOf((String)allEvents.get(i).get(CalendarContract.Events.TITLE));
+                if(toDelete != -1)
+                {
+                    Log.w("myApp", "deleting from futureevents");
+                    futureEvents.remove(toDelete);
+                }
+
+                toDelete = todayEvents.indexOf((String)allEvents.get(i).get(CalendarContract.Events.TITLE));
+                if(toDelete != -1)
+                {
+                    Log.w("myApp", "deleting from todayevents");
+                    todayEvents.remove(toDelete);
+                }
+
+                allEvents.remove(i);
+            }
+        }
+
+        updateLists();
+
     }
 
     @Override
@@ -211,6 +270,10 @@ public class MainActivity extends AppCompatActivity {
 
                 break;
 
+            case R.id.refresh:
+                onResume();
+                break;
+
             case R.id.exit:
                 finish();
                 break;
@@ -220,35 +283,63 @@ public class MainActivity extends AppCompatActivity {
 
     // This gets called when we setResult from the AddActivity function
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.w("Main", "Activity Result");
-        if(requestCode == 1)
-        {
-            // ADD TO LIST INSTEAD OF ADDING TO CALENDAR
+        if (requestCode == 1) {
             ContentValues cal = (ContentValues) data.getParcelableExtra("CAL");
             Log.w("main", "Date: " + cal.get(CalendarContract.Events.DTSTART));
             Calendar begin = Calendar.getInstance();
+            begin.set(Calendar.DAY_OF_MONTH, begin.get(Calendar.DAY_OF_MONTH) + 1);
+            begin.set(Calendar.AM_PM, Calendar.AM);
+            begin.set(Calendar.HOUR_OF_DAY, 0); //Initialize begin to the beginning of the next day
+            begin.set(Calendar.MINUTE, 0);      //so we can check if it's today or not.
+            begin.set(Calendar.SECOND, 0);
 
-            Uri baseUri;
-            if (Build.VERSION.SDK_INT >= 8) {
-                baseUri = Uri.parse("content://com.android.calendar/events");
-            } else {
-                baseUri = Uri.parse("content://calendar/events");
+            allEvents.add(cal);
+            if ((Long)cal.get(CalendarContract.Events.DTSTART) < begin.getTimeInMillis()) {
+                Log.w("main", "Today " + cal.get(CalendarContract.Events.DTSTART));
+                todayEvents.add((String) cal.get(CalendarContract.Events.TITLE));
+            }
+            else {
+                Log.w("main", "Tomorrow " + cal.get(CalendarContract.Events.DTSTART));
+                futureEvents.add((String) cal.get(CalendarContract.Events.TITLE));
             }
 
-            // Insert event into calendar
-            //getApplicationContext().getContentResolver().insert(baseUri, cal);
-
-            Log.w("main", "want to add: " + cal.get(CalendarContract.Events.TITLE));
-            addToList((String) cal.get(CalendarContract.Events.TITLE));
+            updateLists();
         }
     }
 
-    public void addToList(String event) {
+    public void updateLists()
+    {
+        futureEventsAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, futureEvents) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                TextView textView = (TextView) view.findViewById(android.R.id.text1);
+                textView.setTextColor(Color.BLACK);
+                return view;
+            }
+        };
+        lv.setAdapter(futureEventsAdapter);
+
+        todayEventsAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, todayEvents) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                TextView textView = (TextView) view.findViewById(android.R.id.text1);
+                textView.setTextColor(Color.BLACK);
+                return view;
+            }
+        };
+        todayList.setAdapter(todayEventsAdapter);
+    }
+
+
+    /*
+    public void addToList(ArrayList<String> list, String event) {
         //Toast.makeText(getActivity().getApplicationContext(), urls[0], Toast.LENGTH_SHORT).show();
-        events.add(event);
+        list.add(event);
         futureEventsAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, events){
             @Override
             public View getView(int position, View convertView, ViewGroup parent)
@@ -261,6 +352,5 @@ public class MainActivity extends AppCompatActivity {
         };
         lv.setAdapter(futureEventsAdapter);
     }
-
+*/
 }
-
