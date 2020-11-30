@@ -77,6 +77,9 @@ public class MainActivity extends AppCompatActivity {
                 new String[]{Manifest.permission.WRITE_CALENDAR},
                 1);
 
+        Intent myIntent = new Intent(MainActivity.this, LoginActivity.class);
+        MainActivity.this.startActivityForResult(myIntent, 2);
+
         registerReceiver(receiver, new IntentFilter("TIME"));
 
         allEvents = new ArrayList<ContentValues>();
