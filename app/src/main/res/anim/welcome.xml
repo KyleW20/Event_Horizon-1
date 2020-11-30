@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <set xmlns:android="http://schemas.android.com/apk/res/android">
     <rotate
-        android:duration="2000"
+        android:duration="3000"
         android:fromDegrees="0.0"
-        android:toDegrees="1440"
+        android:toDegrees="720"
         android:pivotX="50%"
         android:pivotY="50%"
+        android:startOffset="250"
         />
     <scale
         android:pivotX="50%"
@@ -14,5 +15,7 @@
         android:fromYScale="1"
         android:toXScale="20.0"
         android:toYScale="20.0"
-        android:duration="2000" />
+        android:duration="3000"
+        android:startOffset="1250"
+        />
 </set>
