@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">mobile project</string>
     <string name="today">Today</string>
-    <string name="today1">Today:</string>
-    <string name="future_events">Future events:</string>
+    <string name="today1">Today\s Events</string>
+    <string name="future_events">Future Events</string>
     <string name="description">Description:</string>
     <string name="end_time">End Time</string>
     <string name="start_time">Start Time</string>

@@ -28,6 +28,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -72,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setTitle("Event Horizon");
+
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.READ_CALENDAR},
                 0);
@@ -193,30 +196,33 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         Log.w("Main", "Activity Result");
         if (requestCode == 1) {
-            ContentValues cal = (ContentValues) data.getParcelableExtra("CAL");
-            Log.w("main", "Date: " + cal.get(CalendarContract.Events.DTSTART));
-            Calendar begin = Calendar.getInstance();
-            begin.set(Calendar.DAY_OF_MONTH, begin.get(Calendar.DAY_OF_MONTH) + 1);
-            begin.set(Calendar.AM_PM, Calendar.AM);
-            begin.set(Calendar.HOUR_OF_DAY, 0); //Initialize begin to the beginning of the next day
-            begin.set(Calendar.MINUTE, 0);      //so we can check if it's today or not.
-            begin.set(Calendar.SECOND, 0);
+            if(data != null)
+            {
+                ContentValues cal = (ContentValues) data.getParcelableExtra("CAL");
+                Log.w("main", "Date: " + cal.get(CalendarContract.Events.DTSTART));
+                Calendar begin = Calendar.getInstance();
+                begin.set(Calendar.DAY_OF_MONTH, begin.get(Calendar.DAY_OF_MONTH) + 1);
+                begin.set(Calendar.AM_PM, Calendar.AM);
+                begin.set(Calendar.HOUR_OF_DAY, 0); //Initialize begin to the beginning of the next day
+                begin.set(Calendar.MINUTE, 0);      //so we can check if it's today or not.
+                begin.set(Calendar.SECOND, 0);
 
-            allEvents.add(cal);
+                allEvents.add(cal);
 
-            Uri insertedUri = data.getParcelableExtra("URI");
-            uriList.add(insertedUri);
+                Uri insertedUri = data.getParcelableExtra("URI");
+                uriList.add(insertedUri);
 
-            if ((Long)cal.get(CalendarContract.Events.DTSTART) < begin.getTimeInMillis()) {
-                Log.w("main", "Today " + cal.get(CalendarContract.Events.DTSTART));
-                todayEvents.add((String) cal.get(CalendarContract.Events.TITLE));
+                if ((Long)cal.get(CalendarContract.Events.DTSTART) < begin.getTimeInMillis()) {
+                    Log.w("main", "Today " + cal.get(CalendarContract.Events.DTSTART));
+                    todayEvents.add((String) cal.get(CalendarContract.Events.TITLE));
+                }
+                else {
+                    Log.w("main", "Tomorrow " + cal.get(CalendarContract.Events.DTSTART));
+                    futureEvents.add((String) cal.get(CalendarContract.Events.TITLE));
+                }
+
+                updateLists();
             }
-            else {
-                Log.w("main", "Tomorrow " + cal.get(CalendarContract.Events.DTSTART));
-                futureEvents.add((String) cal.get(CalendarContract.Events.TITLE));
-            }
-
-            updateLists();
         }
     }
 
