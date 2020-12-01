@@ -231,20 +231,26 @@ public class MainActivity extends AppCompatActivity {
                 return view;
             }
         };
-
+        lv.setAdapter(futureEventsAdapter);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Log.w("myApp", "onClick for future events.");
 
                 getApplicationContext().getContentResolver().delete(uriList.get(i), null, null);
+                ContentValues cal = allEvents.get(i);
                 allEvents.remove(futureEventsAdapter.getItem(i));
                 futureEvents.remove(i);
                 uriList.remove(i);
                 updateLists();
+
+                //Open AddActivity fragment
+                Intent myIntent = new Intent(MainActivity.this, AddActivity.class);
+                myIntent.putExtra("CAL", cal);
+                MainActivity.this.startActivityForResult(myIntent, 1);
             }
         });
-        lv.setAdapter(futureEventsAdapter);
+
 
         todayEventsAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, todayEvents) {
             @Override
@@ -255,20 +261,26 @@ public class MainActivity extends AppCompatActivity {
                 return view;
             }
         };
-
+        todayList.setAdapter(todayEventsAdapter);
         todayList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Log.w("myApp", "onClick for today events.");
 
                 getApplicationContext().getContentResolver().delete(uriList.get(i), null, null);
+                ContentValues cal = allEvents.get(i);
                 allEvents.remove(todayEventsAdapter.getItem(i));
                 todayEvents.remove(i);
                 uriList.remove(i);
                 updateLists();
+
+                //Open AddActivity fragment
+                Intent myIntent = new Intent(MainActivity.this, AddActivity.class);
+                myIntent.putExtra("CAL", cal);
+                MainActivity.this.startActivityForResult(myIntent, 1);
             }
         });
-        todayList.setAdapter(todayEventsAdapter);
+
     }
 
 

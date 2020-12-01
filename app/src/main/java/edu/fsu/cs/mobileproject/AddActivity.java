@@ -20,7 +20,9 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 
 public class AddActivity extends AppCompatActivity {
@@ -48,6 +50,9 @@ public class AddActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add);
 
+        ContentValues currentCal = (ContentValues) getIntent().getParcelableExtra("CAL");
+
+
         dText = (TextView) findViewById(R.id.textView3);
         sText = (TextView)findViewById(R.id.textView4);
         eText = (TextView) findViewById(R.id.textView5);
@@ -68,6 +73,13 @@ public class AddActivity extends AppCompatActivity {
         calDay = cal.get(Calendar.DAY_OF_MONTH);
         hour = cal.get(Calendar.HOUR_OF_DAY);
         minute = cal.get(Calendar.MINUTE);
+
+        if(currentCal != null)
+        {
+            Date populate = new Date((Long) currentCal.get(CalendarContract.Events.DTSTART));
+            dText.setText(populate.getMonth() + "/" + populate.getDay() + "/" + populate.getYear());
+            sText.setText(populate.getHours() + ":" + populate.getMinutes());
+        }
 
         startDate.setOnClickListener(new View.OnClickListener() {
 
