@@ -250,11 +250,13 @@ public class AddActivity extends AppCompatActivity {
                     baseUri = Uri.parse("content://calendar/events");
                 }
 
-                getApplicationContext().getContentResolver().insert(baseUri, cal);
+                Uri insertedUri;
+                insertedUri = getApplicationContext().getContentResolver().insert(baseUri, cal);
 
                 Log.w("AddActivity.class", "want to add: " + cal.get(CalendarContract.Events.TITLE));
                 Intent intent = new Intent();
                 intent.putExtra("CAL", cal);
+                intent.putExtra("URI", insertedUri);
                 setResult(1, intent);
                 AddActivity.this.finish();
             }

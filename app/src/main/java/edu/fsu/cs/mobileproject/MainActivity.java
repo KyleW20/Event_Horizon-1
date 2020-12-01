@@ -28,6 +28,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -64,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayAdapter<String> futureEventsAdapter;
     ArrayAdapter<String> todayEventsAdapter;
     ArrayList<ContentValues> allEvents;         //stores all the data for upcoming events
+    ArrayList<Uri> uriList;                     //holding all the uris for easy access to them in the database
     static final int DIALOG_EXIT_ID = 1;
 
     @Override
@@ -83,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(receiver, new IntentFilter("TIME"));
 
         allEvents = new ArrayList<ContentValues>();
+        uriList = new ArrayList<Uri>();
 
         lv = (ListView) findViewById(R.id.listView);
         todayList = (ListView) findViewById(R.id.listView2);
@@ -200,6 +203,10 @@ public class MainActivity extends AppCompatActivity {
             begin.set(Calendar.SECOND, 0);
 
             allEvents.add(cal);
+
+            Uri insertedUri = data.getParcelableExtra("URI");
+            uriList.add(insertedUri);
+
             if ((Long)cal.get(CalendarContract.Events.DTSTART) < begin.getTimeInMillis()) {
                 Log.w("main", "Today " + cal.get(CalendarContract.Events.DTSTART));
                 todayEvents.add((String) cal.get(CalendarContract.Events.TITLE));
@@ -224,6 +231,19 @@ public class MainActivity extends AppCompatActivity {
                 return view;
             }
         };
+
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Log.w("myApp", "onClick for future events.");
+
+                getApplicationContext().getContentResolver().delete(uriList.get(i), null, null);
+                allEvents.remove(futureEventsAdapter.getItem(i));
+                futureEvents.remove(i);
+                uriList.remove(i);
+                updateLists();
+            }
+        });
         lv.setAdapter(futureEventsAdapter);
 
         todayEventsAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, todayEvents) {
@@ -235,6 +255,19 @@ public class MainActivity extends AppCompatActivity {
                 return view;
             }
         };
+
+        todayList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Log.w("myApp", "onClick for today events.");
+
+                getApplicationContext().getContentResolver().delete(uriList.get(i), null, null);
+                allEvents.remove(todayEventsAdapter.getItem(i));
+                todayEvents.remove(i);
+                uriList.remove(i);
+                updateLists();
+            }
+        });
         todayList.setAdapter(todayEventsAdapter);
     }
 
