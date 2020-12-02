@@ -279,6 +279,7 @@ public class MainActivity extends AppCompatActivity {
                 todayEvents.remove(i);
                 uriList.remove(i);
                 updateLists();
+                Toast.makeText(MainActivity.this, cal.get(CalendarContract.Events.DTSTART).toString(), Toast.LENGTH_SHORT).show();
 
                 //Open AddActivity fragment
                 Intent myIntent = new Intent(MainActivity.this, AddActivity.class);

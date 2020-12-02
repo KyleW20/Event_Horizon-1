@@ -78,8 +78,14 @@ public class AddActivity extends AppCompatActivity {
         if(currentCal != null)
         {
             Date populate = new Date((Long) currentCal.get(CalendarContract.Events.DTSTART));
-            dText.setText(populate.getMonth() + "/" + populate.getDay() + "/" + populate.getYear());
+            Date second = new Date((Long) currentCal.get(CalendarContract.Events.DTEND));
+            title.setText("Test");
+            startdText.setText("12/2/20");
+            dText.setText("12/2/20");
             sText.setText(populate.getHours() + ":" + populate.getMinutes());
+            eText.setText(second.getHours() + ":" + second.getMinutes());
+            desc.setText("Testing");
+
         }
 
         startDate.setOnClickListener(new View.OnClickListener() {
