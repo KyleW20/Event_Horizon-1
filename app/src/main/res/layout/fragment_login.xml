@@ -77,4 +77,16 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="20dp"/>
 
+    <TextView
+        android:id="@+id/noLog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btn_login"
+        android:layout_centerInParent="true"
+        android:text="Incorrect Email or Username"
+        android:textColor="#CA3434"
+        android:textSize="18sp"
+        android:visibility="invisible"
+        tools:text="Incorrect Email or Password" />
+
 </RelativeLayout>
